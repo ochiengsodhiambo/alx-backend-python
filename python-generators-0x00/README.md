@@ -36,3 +36,10 @@ lazy_paginate(page_size) → Uses a single while loop. Each iteration:
    - Yields the page.
    - Updates offset (offset += page_size).
 Stops when an empty result is returned.
+## Memory-Efficient Aggregation with Generators
+Memory-efficient: only one age is in memory at a time.
+Generator: yield streams values one by one.
+Two loops total:
+Inside stream_user_ages (for (age,) in cursor)
+Inside compute_average_age (for age in stream_user_ages())
+No SQL AVG — the average is calculated in Python.
