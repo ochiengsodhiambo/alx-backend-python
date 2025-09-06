@@ -6,7 +6,7 @@ This repository contains a Python script (`seed.py`) that sets up a MySQL databa
 
 ## Features
 - Connects to a MySQL server.
-- Creates a database named **ALX_prodev** if it does not already exist.
+- Creates a database named **ALX_prodev**.
 - Connects to the **ALX_prodev** database.
 - Creates a table **user_data** with the following fields:
   - `user_id` (Primary Key, UUID, Indexed)
