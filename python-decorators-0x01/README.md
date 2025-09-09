@@ -12,3 +12,22 @@ The function uses that connection as if you had opened it manually.
 After execution (success or error), the connection is automatically closed with finally.
 
 ### 2-transactional.py
+with_db_connection → opens and closes the connection.
+transactional → ensures the function runs inside a transaction.
+Commit if successful.
+Rollback if an exception is raised.
+Order matters: @with_db_connection wraps outside @transactional so that conn exists before transactions are managed.
+
+### 3-retry_on_failure.py
+with_db_connection → opens/closes the DB connection automatically.
+retry_on_failure(retries, delay) → wraps the function in a retry loop.
+Tries up to retries times.
+Waits delay seconds before retrying if an exception occurs.
+Raises the last exception if all attempts fail.
+
+### 4-cache_query.py
+query_cache is a global dictionary storing query → results.
+On cache hit, the cached results are returned immediately.
+On cache miss, the query executes, results are stored, then returned.
+Works with both positional (args) and keyword (kwargs) query arguments.
+
