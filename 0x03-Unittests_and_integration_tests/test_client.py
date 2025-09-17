@@ -21,8 +21,8 @@ class TestGithubOrgClient(unittest.TestCase):
     @patch("client.get_json")
     def test_org(self, org_name, mock_get_json):
         """
-        Test that GithubOrgClient.org returns the correct value
-        and that get_json is called once with the right URL.
+        Test that GithubOrgClient.org calls get_json exactly once
+        with the expected API URL for the given org.
         """
         client = GithubOrgClient(org_name)
         client.org
@@ -32,8 +32,8 @@ class TestGithubOrgClient(unittest.TestCase):
 
     def test_public_repos_url(self):
         """
-        Test that _public_repos_url returns the expected URL
-        from the mocked payload.
+        Test that _public_repos_url returns the expected repos_url
+        from the mocked org payload.
         """
         with patch(
             "client.GithubOrgClient.org",
@@ -53,8 +53,8 @@ class TestGithubOrgClient(unittest.TestCase):
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json):
         """
-        Test that public_repos returns the expected list of repos
-        based on the mocked payload.
+        Test that public_repos returns the expected list of repo names
+        based on the mocked API response payload.
         """
         test_payload = [{"name": "repo1"}, {"name": "repo2"}]
         mock_get_json.return_value = test_payload
@@ -80,8 +80,8 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     def test_has_license(self, repo, license_key, expected):
         """
-        Test that has_license returns True if the repo license matches
-        the given license key, otherwise False.
+        Test that has_license returns True only if the repo dictionary
+        contains a license entry matching the given license key.
         """
         self.assertEqual(
             GithubOrgClient.has_license(repo, license_key),
@@ -98,11 +98,15 @@ class TestGithubOrgClient(unittest.TestCase):
     }
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """Integration tests for GithubOrgClient using fixtures."""
+    """Integration tests for GithubOrgClient using fixtures data."""
 
     @classmethod
     def setUpClass(cls):
-        """Start patcher for requests.get and configure side_effect."""
+        """
+        Set up a patcher for requests.get.
+        Configure its side_effect to return payloads from fixtures
+        depending on the requested URL.
+        """
         cls.get_patcher = patch("requests.get")
         mock_get = cls.get_patcher.start()
 
@@ -117,20 +121,23 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Stop patcher after tests complete."""
+        """
+        Stop the patcher after all integration tests complete.
+        """
         cls.get_patcher.stop()
 
     def test_public_repos(self):
         """
         Test that public_repos returns the expected repo list
-        from the fixtures.
+        using data from fixtures.
         """
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
     def test_public_repos_with_license(self):
         """
-        Test that public_repos filters repos correctly by license.
+        Test that public_repos correctly filters the repos list
+        when a license argument is passed.
         """
         client = GithubOrgClient("google")
         self.assertEqual(
