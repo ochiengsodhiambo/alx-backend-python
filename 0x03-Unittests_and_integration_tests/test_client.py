@@ -33,14 +33,17 @@ class TestGithubOrgClient(unittest.TestCase):
 
     def test_public_repos_url(self):
         """Test that _public_repos_url returns expected value."""
-        test_payload = {"repos_url": "https://api.github.com/orgs/test/repos"}
+        test_payload = {
+            "repos_url": "https://api.github.com/orgs/test/repos"
+        }
         with patch.object(
             GithubOrgClient, "org", new_callable=PropertyMock
         ) as mock_org:
             mock_org.return_value = test_payload
             client = GithubOrgClient("test")
             self.assertEqual(
-                client._public_repos_url, "https://api.github.com/orgs/test/repos"
+                client._public_repos_url,
+                "https://api.github.com/orgs/test/repos"
             )
 
     @patch("client.get_json")
@@ -57,7 +60,9 @@ class TestGithubOrgClient(unittest.TestCase):
             "_public_repos_url",
             new_callable=PropertyMock,
         ) as mock_repos_url:
-            mock_repos_url.return_value = "https://api.github.com/orgs/test/repos"
+            mock_repos_url.return_value = (
+                "https://api.github.com/orgs/test/repos"
+            )
 
             client = GithubOrgClient("test")
             result = client.public_repos()
@@ -75,7 +80,8 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_has_license(self, repo, license_key, expected):
         """Test has_license returns correct boolean value."""
         self.assertEqual(
-            GithubOrgClient.has_license(repo, license_key), expected
+            GithubOrgClient.has_license(repo, license_key),
+            expected
         )
 
 
@@ -120,5 +126,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """Integration test for public_repos with license filtering."""
         client = GithubOrgClient("test")
         self.assertEqual(
-            client.public_repos(license="apache-2.0"), self.apache2_repos
+            client.public_repos(license="apache-2.0"),
+            self.apache2_repos
         )
