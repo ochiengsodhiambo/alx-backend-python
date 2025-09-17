@@ -35,9 +35,14 @@ class TestGithubOrgClient(unittest.TestCase):
         Test that _public_repos_url returns the expected URL
         from the mocked payload.
         """
-        with patch("client.GithubOrgClient.org", new_callable=Mock) as mock_org:
+        with patch(
+            "client.GithubOrgClient.org",
+            new_callable=Mock
+        ) as mock_org:
             mock_org.return_value = {
-                "repos_url": "http://api.github.com/orgs/test/repos"
+                "repos_url": (
+                    "http://api.github.com/orgs/test/repos"
+                )
             }
             client = GithubOrgClient("test")
             self.assertEqual(
