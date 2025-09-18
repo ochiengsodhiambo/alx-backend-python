@@ -39,24 +39,24 @@ messaging_app/
 
 ### Models Overview
 **User**
-id (UUID, primary key)
-first_name, last_name
-email (unique, used for login)
-phone_number (optional)
-role (guest, host, admin)
-created_at
+ - id (UUID, primary key)
+ - first_name, last_name
+ - email (unique, used for login)
+ - phone_number (optional)
+ - role (guest, host, admin)
+ - created_at
 
 **Conversation**
-id (UUID, primary key)
-participants (many-to-many with User)
-created_at
+ - id (UUID, primary key)
+ - participants (many-to-many with User)
+ - created_at
 
 **Message**
-id (UUID, primary key)
-sender (FK → User)
-conversation (FK → Conversation)
-message_body
-sent_at
+ - id (UUID, primary key)
+ - sender (FK → User)
+ - conversation (FK → Conversation)
+ - message_body
+ - sent_at
 
 
 
