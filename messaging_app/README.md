@@ -24,15 +24,15 @@ It allows one to manage **Users**, **Conversations**, and **Messages**, with sup
 
 ### Project Structure
 messaging_app/
-│── chats/ # Messaging app
-│ ├── models.py # User, Conversation, Message models
-│ ├── serializers.py # DRF serializers
-│ ├── views.py # API ViewSets
-│ ├── urls.py # (optional) app-specific routes
-│── messaging_app/
-│ ├── settings.py # Django settings
-│ ├── urls.py # Main project routes
-│── manage.py # Django CLI
+ - chats/ # Messaging app
+ - models.py # User, Conversation, Message models
+ - serializers.py # DRF serializers
+ - views.py # API ViewSets
+ - urls.py # (optional) app-specific routes
+ - messaging_app/
+ - settings.py # Django settings
+ - urls.py # Main project routes
+ - manage.py # Django CLI
 
 
 ---
