@@ -71,7 +71,7 @@ class OffensiveLanguageMiddleware:
         return self.get_response(request)
 
 
-class RolePermissionMiddleware:
+class RolepermissionMiddleware:
     """
     Allows only admin or moderator users for certain restricted paths.
     """
@@ -91,4 +91,5 @@ class RolePermissionMiddleware:
                 return HttpResponseForbidden("You do not have permission to access this resource.")
 
         return self.get_response(request)
+
 
