@@ -19,7 +19,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["id"]   # add more fields if needed
+    filterset_fields = ["id"]   # Filter by "conversation_id"
 
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
