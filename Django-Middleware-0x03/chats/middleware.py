@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from django.http import JsonResponse, HttpResponseForbidden
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("chats")
 
 
 class RequestLoggingMiddleware:
@@ -91,3 +91,4 @@ class RolePermissionMiddleware:
                 return HttpResponseForbidden("You do not have permission to access this resource.")
 
         return self.get_response(request)
+
