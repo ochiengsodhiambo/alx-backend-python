@@ -150,3 +150,37 @@ REST_FRAMEWORK = {
     ],
 }
 
+#add a file handler and pointing it to chats/requests.log.
+import os
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "chats", "requests.log"),  # save inside chats/
+            "level": "INFO",
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "chats": {
+            "handlers": ["console", "file"],  # log to both console + file
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+# Note: We set propagate to False for "chats" to avoid double logging
