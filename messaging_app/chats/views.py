@@ -8,18 +8,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
 from .auth import IsParticipantOfConversation
+from rest_framework.status import HTTP_403_FORBIDDEN   # ✅ Explicit import
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Conversations:
-    - Only authenticated users who are participants will access
-    - Supports custom action to add messages into a conversation
-    """
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["id"]   # Filter by "conversation_id"
+    filterset_fields = ["id"] # Filter by "conversation_id"
 
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
@@ -29,7 +25,10 @@ class ConversationViewSet(viewsets.ModelViewSet):
         conversation = self.get_object()
 
         if request.user not in conversation.participants.all():
-            raise PermissionDenied("You are not a participant in this conversation.")
+            return Response(
+                {"detail": "You are not a participant in this conversation."},
+                status=HTTP_403_FORBIDDEN,
+            )
 
         serializer = MessageSerializer(data=request.data)
         if serializer.is_valid():
@@ -39,12 +38,6 @@ class ConversationViewSet(viewsets.ModelViewSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for Messages:
-    - Authenticated users only
-    - Only participants of the conversation can see, create, update, or delete messages
-    - Supports filtering & pagination
-    """
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
     filter_backends = [DjangoFilterBackend]
@@ -62,16 +55,22 @@ class MessageViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         conversation = serializer.instance.conversation
         if self.request.user not in conversation.participants.all():
-            raise PermissionDenied("You are not a participant in this conversation.")
+            return Response(
+                {"detail": "You are not a participant in this conversation."},
+                status=HTTP_403_FORBIDDEN,
+            )
         serializer.save()
 
     def perform_destroy(self, instance):
         conversation = instance.conversation
         if self.request.user not in conversation.participants.all():
-            raise PermissionDenied("You are not a participant in this conversation.")
+            return Response(
+                {"detail": "You are not a participant in this conversation."},
+                status=HTTP_403_FORBIDDEN,
+            )
         instance.delete()
 
 
-# Quick health check endpoint
+# Health check
 def index(request):
     return HttpResponse("Chats app is working!")
