@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -53,8 +53,14 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
 
+    # timestamp field (for message order & analytics)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"Message {self.id} from {self.sender.username} to {self.receiver.username}"
+
+    class Meta:
+        ordering = ["-timestamp"]  # newest messages first
 
 
 # 4. Message History
@@ -83,4 +89,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message.id}"
-
