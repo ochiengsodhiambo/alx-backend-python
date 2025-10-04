@@ -76,6 +76,14 @@ class Message(models.Model):
     def __str__(self):
         return f"Message {self.id} from {self.sender.username} to {self.receiver.username}"
 
+    # adding a custom manager or class method that returns unread messages for a user
+
+    @classmethod
+    def unread_for_user(cls, user):
+        """Return unread messages for a given user."""
+        return cls.objects.filter(receiver=user, unread=True)
+
+
 # 4. Message History
 class MessageHistory(models.Model):
     id = models.UUIDField(
@@ -102,6 +110,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message.id}"
+
 
 
 
