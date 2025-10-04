@@ -69,6 +69,24 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         serializer.save(sender=self.request.user)
 
+    # -------------------------
+    #  Meesage endpoint: Unread messages
+    # -------------------------
+    @action(detail=False, methods=["get"], url_path="unread")
+    def unread_messages(self, request):
+        """
+        Return all unread messages for the authenticated user.
+        Uses the Message.unread_for_user() helper and .only() optimization.
+        """
+        unread_qs = (
+            Message.unread_for_user(request.user)
+            .only("id", "sender__username", "content", "timestamp", "conversation_id")
+            .select_related("sender", "conversation")
+        )
+
+        serializer = self.get_serializer(unread_qs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # -------------------------
 # Edit a message
@@ -133,4 +151,5 @@ def conversation_list_view(request, conversation_id):
         "conversation": convo,
         "messages": messages
     })
+
 
