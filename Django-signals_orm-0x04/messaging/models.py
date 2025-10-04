@@ -49,16 +49,26 @@ class Message(models.Model):
     conversation = models.ForeignKey(
         Conversation, on_delete=models.CASCADE, related_name="messages"
     )
+    parent_message = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='replies',
+        help_text="Optional reference to another message (for threaded replies)"
+    )
     content = models.TextField()
-    
+
+    # timestamps
     timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # tracking edits
+    edited = models.BooleanField(default=False)
     edited_at = models.DateTimeField(null=True, blank=True)
     edited_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="edited_messages"
     )
-
-    edited = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Message {self.id} from {self.sender.username} to {self.receiver.username}"
@@ -89,4 +99,5 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message.id}"
+
 
