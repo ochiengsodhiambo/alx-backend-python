@@ -79,7 +79,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         Uses the Message.unread_for_user() helper and .only() optimization.
         """
         unread_qs = (
-            Message.unread_for_user(request.user)
+            Message.unread.unread_for_user(request.user)
             .only("id", "sender__username", "content", "timestamp", "conversation_id")
             .select_related("sender", "conversation")
         )
@@ -151,5 +151,6 @@ def conversation_list_view(request, conversation_id):
         "conversation": convo,
         "messages": messages
     })
+
 
 
