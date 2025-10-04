@@ -59,6 +59,9 @@ class Message(models.Model):
     )
     content = models.TextField()
 
+    # status tracking
+    unread = models.BooleanField(default=True, help_text="Indicates if the message has been read by the receiver")
+
     # timestamps
     timestamp = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -99,5 +102,6 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message.id}"
+
 
 
