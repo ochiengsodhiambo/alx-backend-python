@@ -1,4 +1,4 @@
-# Use an official Python runtime as a parent image
+ Use an official Python runtime as a parent image
 FROM python:3.10
 
 # Prevent Python from writing .pyc files and buffering stdout/stderr
@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose the port ["-p"]Django will run on
+
 EXPOSE 8000
 
 # Start the Django app
