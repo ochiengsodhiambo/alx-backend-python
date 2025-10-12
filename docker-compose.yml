@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: messaging_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql   # ✅ This volume makes MySQL data persistent
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app                   # Mount your app for live code updates
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_NAME=messaging_db
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+
+volumes:
+  db_data:                       # Volume definition for MySQL persistence
