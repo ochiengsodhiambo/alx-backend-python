@@ -1,5 +1,5 @@
 #!/bin/bash
-# kurbeScript.sh — Start and verify Minikube Kubernetes cluster
+# kurbeScript — Start and verify Minikube Kubernetes cluster
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
