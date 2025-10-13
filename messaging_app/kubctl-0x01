@@ -1,0 +1,45 @@
+#!/bin/bash
+# kubctl-0x01 — Scale Django app, verify pods, load test, and monitor resources
+
+set -e  # Exit if any command fails
+
+DEPLOYMENT_NAME="messaging-app-deployment"
+SERVICE_NAME="messaging-app-service"
+NAMESPACE="default"
+
+echo "Scaling deployment '$DEPLOYMENT_NAME' to 3 replicas..."
+kubectl scale deployment $DEPLOYMENT_NAME --replicas=3 -n $NAMESPACE
+
+echo "Waiting for pods to be ready..."
+kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+
+echo "Verifying running pods..."
+kubectl get pods -n $NAMESPACE -o wide
+
+# Optional: Port-forward the service to test locally
+echo "Port-forwarding service to localhost:8000..."
+kubectl port-forward service/$SERVICE_NAME 8000:8000 -n $NAMESPACE &
+PORT_FWD_PID=$!
+
+# Wait a few seconds for port-forward to stabilize
+sleep 5
+
+# Run load test using wrk (if installed)
+if command -v wrk &> /dev/null; then
+    echo "Running load test with wrk (10s test, 12 threads, 400 connections)..."
+    wrk -t12 -c400 -d10s http://127.0.0.1:8000/
+else
+    echo " 'wrk' not found. Please install it with: sudo apt install wrk"
+fi
+
+# Monitor resource usage (requires metrics-server installed)
+if kubectl top pods &> /dev/null; then
+    echo "Monitoring resource usage:"
+    kubectl top pods
+else
+    echo " 'kubectl top' unavailable — metrics-server may not be installed."
+fi
+
+# Stop port-forward when done
+kill $PORT_FWD_PID
+echo "Scaling, testing, and monitoring complete."
