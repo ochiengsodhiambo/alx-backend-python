@@ -1,4 +1,4 @@
- Use an official Python runtime as a parent image
+# Use an official Python runtime as a parent image
 FROM python:3.10
 
 # Prevent Python from writing .pyc files and buffering stdout/stderr
@@ -23,4 +23,5 @@ EXPOSE 8000
 
 # Start the Django app
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
 
