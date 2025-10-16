@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e  # Exit if any command fails
+
+DEPLOYMENT="messaging-app-blue"
+SERVICE="messaging-app-service"
+NAMESPACE="default"  # change if using a different namespace
+
+echo "Step 1: Applying updated deployment..."
+kubectl apply -f blue_deployment.yaml
+
+echo "Step 2: Checking rollout status..."
+kubectl rollout status deployment/$DEPLOYMENT --namespace $NAMESPACE
+
+# Get service ClusterIP and port
+SERVICE_IP=$(kubectl get svc $SERVICE -n $NAMESPACE -o jsonpath='{.spec.clusterIP}')
+SERVICE_PORT=$(kubectl get svc $SERVICE -n $NAMESPACE -o jsonpath='{.spec.ports[0].port}')
+
+echo "Step 3: Testing if app stays up during rollout..."
+echo "Sending continuous curl requests to http://$SERVICE_IP:$SERVICE_PORT"
+
+for i in {1..20}; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$SERVICE_IP:$SERVICE_PORT || echo "failed")
+  echo "Request $i → Status: $STATUS"
+  sleep 2
+done
+
+echo "Step 4: Checking current pods..."
+kubectl get pods -l app=messaging-app,version=blue -o wide
+
+echo "Rolling update complete!"
