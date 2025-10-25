@@ -1,34 +1,16 @@
 pipeline {
     agent any
-
     environment {
-        GITHUB_CREDS = credentials('github-creds')
-        DOCKERHUB_CREDS = credentials('dockerhub-creds')
-        APP_NAME = 'messaging_app'
         IMAGE_NAME = "ochiengsodhiambo/messaging_app"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
     }
 
     stages {
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/ochiengsodhiambo/alx-backend-python.git',
-                    credentialsId: 'github-creds'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
-                echo "Installing system dependencies..."
-                apt-get update -y
-                apt-get install -y python3 python3-pip python3-venv
-
-                echo "Creating virtual environment..."
                 python3 -m venv venv
                 . venv/bin/activate
-
-                echo "Installing Python requirements..."
                 pip install --upgrade pip
                 pip install -r messaging_app/requirements.txt
                 '''
@@ -39,7 +21,7 @@ pipeline {
             steps {
                 sh '''
                 . venv/bin/activate
-                pytest
+                pytest --maxfail=1 --disable-warnings -q --junitxml=test-results.xml
                 '''
             }
         }
@@ -47,16 +29,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t $IMAGE_NAME:latest messaging_app/
+                docker build -t $IMAGE_NAME:$BUILD_NUMBER .
                 '''
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
                     sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push $IMAGE_NAME:$BUILD_NUMBER
+                    docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
                     docker push $IMAGE_NAME:latest
                     '''
                 }
@@ -65,14 +48,15 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Cleaning up workspace...'
+            sh 'rm -rf venv'
+        }
         success {
-            echo " Build and push successful!"
+            echo 'Build and push succeeded!'
         }
         failure {
-            echo "Build failed. Check logs for details."
-        }
-        always {
-            sh 'rm -rf venv'
+            echo 'Build failed. Check logs for details.'
         }
     }
 }
