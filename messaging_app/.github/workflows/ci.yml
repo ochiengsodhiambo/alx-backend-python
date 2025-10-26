@@ -12,43 +12,56 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: test_db
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --silent"
+          --health-cmd="mysqladmin ping -h localhost"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
     env:
-      DB_HOST: 127.0.0.1
-      DB_NAME: test_db
-      DB_USER: root
-      DB_PASSWORD: root
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_NAME: test_db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      DJANGO_SETTINGS_MODULE: messaging_app.settings
+      PYTHONPATH: ${{ github.workspace }}/messaging_app
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r messaging_app/requirements.txt
+          pip install flake8 coverage
 
-      - name: Run Django migrations
+      - name: Run flake8 linting
         run: |
-          python manage.py makemigrations
-          python manage.py migrate
+          echo "Running flake8 linting..."
+          flake8 messaging_app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 messaging_app --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
 
-      - name: Run tests with pytest
+      - name: Run Django tests with coverage
         run: |
-          pytest --maxfail=1 --disable-warnings -q
+          echo "Running tests and collecting coverage..."
+          coverage run manage.py test
+          coverage report
+          coverage html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
